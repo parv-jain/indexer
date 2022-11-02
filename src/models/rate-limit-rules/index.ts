@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import _ from "lodash";
 
-import { rateLimitRedis, redis } from "@/common/redis";
+import { redis } from "@/common/redis";
 import { idb, redb } from "@/common/db";
 import {
   RateLimitRuleEntity,
@@ -13,12 +13,16 @@ import { channels } from "@/pubsub/channels";
 import { logger } from "@/common/logger";
 import { ApiKeyManager } from "@/models/api-keys";
 import { RateLimiterRedis } from "rate-limiter-flexible";
+import { config } from "@/config/index";
+import Redis from "ioredis";
 
 export class RateLimitRules {
   private static instance: RateLimitRules;
 
   public rulesEntities: Map<string, RateLimitRuleEntity>;
   public rules: Map<string, RateLimiterRedis>;
+
+  private rateLimitRedis: Redis.Redis | undefined;
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {
@@ -64,7 +68,7 @@ export class RateLimitRules {
           rateLimitRule.apiKey
         ),
         new RateLimiterRedis({
-          storeClient: rateLimitRedis,
+          storeClient: this.rateLimitRedis,
           points: rateLimitRule.options.points,
           duration: rateLimitRule.options.duration,
           inMemoryBlockOnConsumed: rateLimitRule.options.points,
@@ -95,8 +99,10 @@ export class RateLimitRules {
   }
 
   public static async getInstance() {
-    if (!this.instance) {
+    if (config.doApiWork && !this.instance) {
       this.instance = new RateLimitRules();
+      const rateLimitRedis = await import("@/common/rate_limit_redis");
+      this.instance.rateLimitRedis = rateLimitRedis.rateLimitRedis;
       await this.instance.loadData();
     }
 
