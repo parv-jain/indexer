@@ -9,6 +9,7 @@ import { formatEth, regex } from "@/common/utils";
 import { ActivityType } from "@/models/activities/activities-entity";
 import { UserActivities } from "@/models/user-activities";
 import { Sources } from "@/models/sources";
+import { JoiSource } from "@/common/joi";
 
 const version = "v2";
 
@@ -87,7 +88,7 @@ export const getUserActivityV2Options: RouteOptions = {
           txHash: Joi.string().lowercase().pattern(regex.bytes32).allow(null),
           logIndex: Joi.number().allow(null),
           batchIndex: Joi.number().allow(null),
-          source: Joi.object().allow(null),
+          source: JoiSource.allow(null),
         })
       ),
     }).label(`getUserActivity${version.toUpperCase()}Response`),

@@ -26,6 +26,14 @@ export const JoiPrice = Joi.object({
   netAmount: JoiPriceAmount.optional(),
 });
 
+export const JoiSource = Joi.object({
+  id: Joi.string().pattern(regex.address),
+  domain: Joi.string(),
+  name: Joi.string(),
+  icon: Joi.string().optional(),
+  url: Joi.string().optional(),
+});
+
 export const getJoiAmountObject = async (
   currency: Currency,
   amount: string,

@@ -8,6 +8,7 @@ import { logger } from "@/common/logger";
 import { formatEth, regex } from "@/common/utils";
 import { Activities } from "@/models/activities";
 import { Sources } from "@/models/sources";
+import { JoiSource } from "@/common/joi";
 
 const version = "v1";
 
@@ -46,7 +47,7 @@ export const getActivityV1Options: RouteOptions = {
           txHash: Joi.string().lowercase().pattern(regex.bytes32).allow(null),
           logIndex: Joi.number().allow(null),
           batchIndex: Joi.number().allow(null),
-          source: Joi.object().allow(null),
+          source: JoiSource.allow(null),
         }).description("Amount of items returned in response.")
       ),
     }).label(`getActivity${version.toUpperCase()}Response`),
